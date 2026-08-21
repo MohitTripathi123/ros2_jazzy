@@ -1,0 +1,15 @@
+# This is the action definition for the Fibonacci action.
+# The goal is to compute the Fibonacci sequence up to the 'order' specified in the goal.
+# The result will contain the Fibonacci sequence as a list of integers.     
+# The feedback will contain the current Fibonacci sequence being computed.
+# The action definition consists of three parts: Goal, Result, and Feedback.
+# The Goal part defines the input to the action, which is the 'order' of the Fibonacci sequence to compute.
+# The Result part defines the output of the action, which is the computed Fibonacci sequence.
+# The Feedback part defines the intermediate feedback that can be sent during the execution of the action,
+# which is the current Fibonacci sequence being computed at that point in time.
+
+int32 order
+---
+int32[] sequence
+---
+int32[] current_sequence

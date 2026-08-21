@@ -1,0 +1,3 @@
+if [ -z "${FASTDDS_BUILTIN_TRANSPORTS:-}" ]; then
+  export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
+fi

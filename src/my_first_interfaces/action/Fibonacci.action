@@ -1,0 +1,6 @@
+
+int32 order #Goal   
+---
+int32[] sequence #Result
+---
+int32[] partial_sequence #Feedback

@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    publish_rate: 1.0
+    max_box_threshold: 7
+    normal_speed: 1.0
+    slow_speed: 0.5
+    critical_threshold: 9
