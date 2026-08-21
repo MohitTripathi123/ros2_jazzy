@@ -1,0 +1,39 @@
+# ROS 2 / Colcon generated output
+build/
+install/
+log/
+build_backup_*/
+install_backup_*/
+log_backup_*/
+
+# Accidental nested Colcon output
+src/build/
+src/install/
+src/log/
+src/**/build/
+src/**/install/
+src/**/log/
+
+# Python generated files and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+yolovenv/
+
+# Downloaded ML models (Ultralytics downloads these on first use)
+*.pt
+
+# Generated TF inspection output and saved runtime maps
+frames_*.gv
+frames_*.pdf
+/my_map.pgm
+/my_map.yaml
+
+# Third-party source and downloaded Debian source archives
+/src/moveit2_tutorials/
+/ros-jazzy-hardware-interface-*/
+/ros-jazzy-hardware-interface_*
+
+# Editor and OS metadata
+.vscode/
+.DS_Store

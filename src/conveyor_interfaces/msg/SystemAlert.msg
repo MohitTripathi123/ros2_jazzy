@@ -1,0 +1,2 @@
+string level
+string message

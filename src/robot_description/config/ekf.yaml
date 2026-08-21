@@ -1,0 +1,23 @@
+ekf_filter_node:
+  ros__parameters:
+    # How often (Hz) the EKF publishes /odometry/filtered
+    frequency: 30.0
+  
+    # Ignore Z, roll, and pitch — robot moves only in 2D plane
+    two_d_mode: true
+    
+
+    # First odometry source (from wheel encoders / diff-drive)
+    odom0: /odom
+
+    # Which fields of the odom0 message to fuse into the filter.
+    # Order: x,     y,     z,
+    #        roll,  pitch, yaw,
+    #        vx,    vy,    vz,
+    #        vroll, vpitch,vyaw,
+    #        ax,    ay,    az
+    odom0_config: [true,  true,  false,   # fuse x, y position
+                   false, false, true,    # fuse yaw (heading)
+                   true,  true,  false,   # fuse vx, vy velocity
+                   false, false, true,    # fuse vyaw (angular velocity)
+                   false, false, false]   # ignore linear accelerations
