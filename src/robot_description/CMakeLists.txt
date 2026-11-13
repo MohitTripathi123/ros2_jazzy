@@ -47,6 +47,8 @@ install_resource_files(urdf)
 install_resource_files(config)
 
 if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(simulation_config test/test_simulation_config.py TIMEOUT 60)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files

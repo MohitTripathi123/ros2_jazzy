@@ -1,7 +1,9 @@
+import traceback
+
+from geometry_msgs.msg import Twist
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
-import traceback
+
 
 class SafeShutdownNode(Node):
     def __init__(self):
@@ -13,7 +15,7 @@ class SafeShutdownNode(Node):
         self.get_logger().info('Controller initialized.')
 
     def control_loop(self):
-        
+
         if self.count == 5:
             raise Exception('Simulated error for testing safe shutdown.')
         msg = Twist()
@@ -21,7 +23,7 @@ class SafeShutdownNode(Node):
         self.publisher_.publish(msg)
         self.get_logger().info('Moving forward count: %d' % self.count)
         self.count += 1
-        
+
     def stop_robot(self):
         self.get_logger().info('Stopping robot safely...')
         stop_msg = Twist()
@@ -29,11 +31,12 @@ class SafeShutdownNode(Node):
         stop_msg.angular.z = 0.0
         self.publisher_.publish(stop_msg)
         self.get_logger().info('Robot stopped.')
-        
+
     def cleanup(self):
         self.destroy_timer(self.timer)
         self.destroy_node()
         self.get_logger().info('Cleanup complete.')
+
 
 def main(args=None):
     rclpy.init(args=args)
@@ -51,7 +54,6 @@ def main(args=None):
         rclpy.shutdown()
         print('ROS 2 shutdown complete.')
 
+
 if __name__ == '__main__':
     main()
-
-

@@ -1,8 +1,9 @@
+import cv2
+from cv_bridge import CvBridge
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
-import cv2
+
 
 class ImageSubscriber(Node):
     def __init__(self):
@@ -26,6 +27,7 @@ class ImageSubscriber(Node):
             cv2.waitKey(1)
         except Exception as e:
             self.get_logger().error(f'Error processing image: {e}')
+
 
 def main(args=None):
     rclpy.init(args=args)

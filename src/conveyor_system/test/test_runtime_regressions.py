@@ -9,6 +9,7 @@ from conveyor_interfaces.srv import SetMode
 from conveyor_system.control_node import ControlNode
 from conveyor_system.operator_service_node import OperatorServiceNode
 from conveyor_system.safety_supervisor_node import SafetySupervisorNode
+from conveyor_system.sensor_node import SensorNode
 
 import pytest
 
@@ -200,3 +201,29 @@ def test_safety_lifecycle_gates_alerts_and_releases_resources(graph):
         assert len(tuple(safety.subscriptions)) == baseline_subscriptions
         assert len(tuple(safety.publishers)) == baseline_publishers
         graph.until(lambda: boxes.get_subscription_count() == 0)
+
+
+def test_sensor_uses_startup_publish_rate(graph):
+    """The YAML rate controls actual timed DDS output and cannot lie about tuning."""
+    samples = []
+    graph.probe.create_subscription(
+        BoxState, '/box_state', lambda msg: samples.append(time.monotonic()), 10)
+    sensor = graph.add(SensorNode, parameter_overrides=[
+        Parameter('publish_rate', value=5.0)])
+    assert sensor.timer.timer_period_ns == 200_000_000
+    graph.until(lambda: len(samples) >= 6)
+    intervals = [b - a for a, b in zip(samples, samples[1:])]
+    assert sum(intervals) / len(intervals) == pytest.approx(0.2, abs=0.08)
+    result = sensor.set_parameters([Parameter('publish_rate', value=2.0)])[0]
+    assert not result.successful
+    assert sensor.get_parameter('publish_rate').value == 5.0
+    assert sensor.timer.timer_period_ns == 200_000_000
+
+
+@pytest.mark.parametrize('rate', [
+    0.0, -1.0, float('nan'), float('inf'), 1e300, 1e-300, 1e10, 1e-12])
+def test_sensor_rejects_invalid_startup_rate(graph, rate):
+    """Invalid rate overrides fail before a timer or sensor publisher is created."""
+    with pytest.raises(ValueError, match='publish_rate must'):
+        SensorNode(context=graph.context, cli_args=graph.args, parameter_overrides=[
+            Parameter('publish_rate', value=rate)])

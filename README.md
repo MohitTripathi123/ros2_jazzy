@@ -219,11 +219,11 @@ python3 -m unittest discover -s scripts -p 'test_*.py' -v
 After building and sourcing on Ubuntu 24.04 with ROS 2 Jazzy, stop exercise nodes before running tests:
 
 ```bash
-colcon test --packages-select conveyor_system lifecycle_demo
+colcon test --packages-select conveyor_system lifecycle_demo my_first_pkg integration_demo robot_description
 colcon test-result --verbose
 ```
 
-Those focused tests cover conveyor/lifecycle regressions, not the full robotics course. To inspect every package's available tests:
+Those focused tests cover conveyor/lifecycle behavior, parameter validation and model/configuration regressions, not the full robotics course. To inspect every package's available tests:
 
 ```bash
 colcon test

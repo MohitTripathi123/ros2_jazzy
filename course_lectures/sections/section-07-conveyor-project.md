@@ -32,7 +32,7 @@ Launch the complete multi-node conveyor application from one file. Load shared c
 
 ## Lecture 38: YAML Configuration, Parameters & QoS Integration
 
-Centralize the supported conveyor thresholds and speeds in YAML and combine them with deliberate QoS choices. The current sensor timer remains fixed at one second; the `publish_rate` YAML entry is not implemented. Review how runtime configuration influences each node without modifying source code.
+Centralize the supported conveyor thresholds and speeds in YAML and combine them with deliberate QoS choices. The `publish_rate` YAML entry sets the sensor rate at startup; use a finite positive rate with a representable nonzero timer period and restart after editing it. Review how runtime configuration influences each node without modifying source code.
 
 ## Lecture 39: Final Debugging, Refactoring & Strong ROS 2 Engineer Wrap-Up
 
