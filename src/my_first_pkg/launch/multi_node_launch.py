@@ -3,6 +3,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -11,7 +12,7 @@ def generate_launch_description():
         default_value='2.0',
         description='Initial speed of the robot'
     )
-    robot_speed = LaunchConfiguration('robot_speed')
+    robot_speed = ParameterValue(LaunchConfiguration('robot_speed'), value_type=float)
 
     enable_callback_arg = DeclareLaunchArgument(
         'enable_callback',

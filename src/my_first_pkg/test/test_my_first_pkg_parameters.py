@@ -1,5 +1,11 @@
 """Regression tests using real rclpy nodes and parameter transactions."""
 
+import os
+from pathlib import Path
+import signal
+import subprocess
+import time
+
 from my_first_pkg.parameter_callback_example import ParameterCallbackExampleNode
 import pytest
 from rcl_interfaces.msg import SetParametersResult
@@ -132,3 +138,86 @@ def test_successful_duplicate_update_uses_committed_value(node):
     ])
     assert result.successful
     assert node.get_parameter('robot_speed').value == 2.5
+
+
+@pytest.fixture
+def launch_command():
+    """Use the actual launch file; the package executables must be built and sourced."""
+    launch_file = Path(__file__).resolve().parents[1] / 'launch' / 'multi_node_launch.py'
+    return ['ros2', 'launch', str(launch_file)]
+
+
+def stop_launch(process):
+    """Stop only this launch's session, escalating and always reaping its leader."""
+    # Keep the leader unreaped until the last group signal. Its reserved PID prevents
+    # accidentally targeting a reused process-group ID if the launch exits early.
+    try:
+        for sig, timeout in [(signal.SIGINT, 5.0), (signal.SIGTERM, 2.0)]:
+            try:
+                os.killpg(process.pid, sig)
+            except ProcessLookupError:
+                break
+            deadline = time.monotonic() + timeout
+            exited = None
+            while time.monotonic() < deadline:
+                exited = os.waitid(
+                    os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+                if exited is not None:
+                    break
+                time.sleep(0.05)
+            if exited is not None:
+                break
+    finally:
+        # The leader may have exited while one of its child nodes is still alive.
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        finally:
+            process.wait(timeout=5.0)
+
+
+def test_launch_integer_text_becomes_double(context, launch_command, tmp_path):
+    client_node = Node('my_first_pkg_launch_regression_client', context=context)
+    executor = SingleThreadedExecutor(context=context)
+    executor.add_node(client_node)
+    client = AsyncParameterClient(client_node, '/robot1/callback_node')
+    try:
+        with (tmp_path / 'launch.log').open('w') as output:
+            process = subprocess.Popen(
+                launch_command + ['robot_speed:=3'], stdout=output,
+                stderr=subprocess.STDOUT, start_new_session=True)
+            try:
+                assert client.wait_for_services(timeout_sec=10.0)
+                future = client.get_parameters(['robot_speed'])
+                executor.spin_until_future_complete(future, timeout_sec=5.0)
+                assert future.done()
+                value = future.result().values[0]
+                assert value.type == Parameter.Type.DOUBLE.value
+                assert value.double_value == 3.0
+            finally:
+                stop_launch(process)
+    finally:
+        try:
+            executor.shutdown()
+        finally:
+            client_node.destroy_node()
+
+
+@pytest.mark.parametrize('value', ['fast', 'true', '11', 'nan', 'inf', '-1'])
+def test_launch_rejects_invalid_speed(launch_command, value, tmp_path):
+    with (tmp_path / 'invalid-launch.log').open('w') as output:
+        process = subprocess.Popen(
+            launch_command + [f'robot_speed:={value}'], stdout=output,
+            stderr=subprocess.STDOUT, start_new_session=True)
+        try:
+            expected = ('could not convert string to float' if value in ('fast', 'true')
+                        else 'robot_speed must be finite and between')
+            deadline = time.monotonic() + 10.0
+            log = ''
+            while expected not in log and time.monotonic() < deadline:
+                log = (tmp_path / 'invalid-launch.log').read_text()
+                time.sleep(0.05)
+            assert expected in log, log
+        finally:
+            stop_launch(process)

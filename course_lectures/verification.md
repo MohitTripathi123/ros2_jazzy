@@ -6,20 +6,21 @@ Checked on 2026-11-13. This record replaces the earlier documentation-only repor
 
 ## Fixes validated
 
-- Parameter examples reject non-double, non-finite and out-of-range speeds, including startup overrides. Integration updates its cached speed only after a parameter transaction commits; rejected atomic batches leave published speed unchanged.
+- Parameter examples reject non-double, non-finite and out-of-range speeds, including startup overrides. Integration reads the committed parameter for each publication without a duplicate cache; rejected atomic batches leave published speed unchanged.
 - Gazebo DiffDrive is configured to receive the bridged `/cmd_vel` topic. Wheel separation and radius come from the same Xacro properties as the geometry. CameraInfo has an explicit topic matching its bridge.
 - Both Nav2 costmaps use a 0.33 m robot radius. Model-derived regression checks confirm it encloses the collision geometry; the body corners alone require about 0.3202 m.
+- Integer-form speed launch arguments such as `robot_speed:=3` are explicitly converted to doubles; invalid, non-finite and out-of-range launch values fail.
 - Documented standalone localization and Nav2 commands use the Python-compatible `False` arguments. The repository's own `use_slam:=false` remains valid.
-- Conveyor `publish_rate` now sets the actual timer at startup, rejects non-finite/nonpositive values and rejects changes after startup rather than claiming to change the timer.
+- Conveyor `publish_rate` now sets the actual timer at startup, rejects non-finite/nonpositive rates and timer-period overflow/underflow and rejects changes after startup rather than claiming to change the timer.
 - Missing direct ROS/OpenCV runtime dependencies were added to package manifests. Ultralytics/DeepSORT still follow the documented separate Python-environment setup.
 - Existing Python lint failures were corrected without changing unrelated example behavior.
 
 ## Executed checks on the fixes
 
 - **Build passed:** all 14 packages, clean build/install directories.
-- **Complete repository suite passed:** `colcon test-result` reports **115 tests, 0 errors, 0 failures, 11 skipped**. Counts include CTest/xUnit aggregation. The skipped checks are the existing copyright placeholders, not silently skipped runtime failures.
+- **Complete repository suite passed:** `colcon test-result` reports **135 tests, 0 errors, 0 failures, 11 skipped**. Counts include CTest/xUnit aggregation. The skipped checks are the existing copyright placeholders, not silently skipped runtime failures.
 - **All seven earlier conveyor/lifecycle regressions passed.**
-- **57 new regression cases passed:** 47 real-rclpy parameter cases (including parameter services over DDS and velocity publication), five sensor-rate cases (including timed DDS output), and five model/config/documentation checks (including real Xacro and SDF conversion).
+- **77 new regression cases passed:** 61 real-rclpy/launch parameter cases (including parameter services over DDS and velocity publication), nine sensor-rate cases (including timed DDS output and extreme-rate rejection), and seven model/config/documentation checks (including real Xacro and SDF conversion).
 - **Core process checks passed:** node discovery, approximately 1 Hz pub/sub, AddTwoInts client/server, Fibonacci feedback/result, finite parameter changes and rejection, launch namespaces/conditions/overrides, callback blocking, QoS compatibility, and clean shutdown. Offscreen Turtlesim movement and concurrent callbacks were observed.
 - **Localization/Nav2 passed with synthetic inputs:** corrected standalone map-server/AMCL startup; 12 Nav2 lifecycle nodes active; map, AMCL poses and connected TF; successful 38-pose path to (1, 0); successful navigation action at the current pose. These are startup/planning/action checks, not driven-motion tests.
 - **Actual perception inference passed:** three pixel-exact grayscale frames; five YOLOv8n frames with six detections each; YOLOv8m/DeepSORT IDs 1–5 confirmed and stable; five static counting frames at zero; a 16-frame synthetic downward crossing increments the unchanged `y=250` line count once and remains one. Counting image headers are preserved. Real OpenCV display calls ran with offscreen Qt.

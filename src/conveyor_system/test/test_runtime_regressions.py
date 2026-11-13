@@ -220,9 +220,10 @@ def test_sensor_uses_startup_publish_rate(graph):
     assert sensor.timer.timer_period_ns == 200_000_000
 
 
-@pytest.mark.parametrize('rate', [0.0, -1.0, float('nan'), float('inf')])
+@pytest.mark.parametrize('rate', [
+    0.0, -1.0, float('nan'), float('inf'), 1e300, 1e-300, 1e10, 1e-12])
 def test_sensor_rejects_invalid_startup_rate(graph, rate):
     """Invalid rate overrides fail before a timer or sensor publisher is created."""
-    with pytest.raises(ValueError, match='publish_rate must be finite'):
+    with pytest.raises(ValueError, match='publish_rate must'):
         SensorNode(context=graph.context, cli_args=graph.args, parameter_overrides=[
             Parameter('publish_rate', value=rate)])

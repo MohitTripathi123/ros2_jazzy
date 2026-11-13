@@ -5,6 +5,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -15,7 +16,7 @@ def generate_launch_description():
         default_value='1.0',
         description='Initial speed of the robot'
     )
-    robot_speed = LaunchConfiguration('robot_speed')
+    robot_speed = ParameterValue(LaunchConfiguration('robot_speed'), value_type=float)
 
     return LaunchDescription([
         robot_speed_arg,

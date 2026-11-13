@@ -26,11 +26,18 @@ class SensorNode(Node):
         if not math.isfinite(publish_rate) or publish_rate <= 0.0:
             self.destroy_node()
             raise ValueError('publish_rate must be finite and greater than zero')
+        period = 1.0 / publish_rate
+        # rclpy converts seconds to signed 64-bit nanoseconds. Reject both
+        # overflow and a sub-nanosecond period that would round down to zero.
+        period_ns = period * 1_000_000_000
+        if not math.isfinite(period_ns) or not 1 <= period_ns < 2**63:
+            self.destroy_node()
+            raise ValueError('publish_rate must produce a representable, nonzero timer period')
         self.declare_parameter('max_box_threshold', 7)
         self.max_box_threshold = self.get_parameter('max_box_threshold').value
         qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
         self.publisher_ = self.create_publisher(BoxState, '/box_state', qos_profile)
-        self.timer = self.create_timer(1.0 / publish_rate, self.publish_box_state)
+        self.timer = self.create_timer(period, self.publish_box_state)
         self.get_logger().info('Sensor node has been started.')
 
     def publish_box_state(self):

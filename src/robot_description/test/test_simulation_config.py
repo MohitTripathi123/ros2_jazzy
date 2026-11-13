@@ -46,6 +46,30 @@ def test_drive_geometry_and_bridge(robot):
     assert drive.findtext('odom_topic') == '/odom'
 
 
+@pytest.mark.parametrize('offset,radius', [(0.30, 0.12), (0.18, 0.08)])
+def test_drive_tracks_changed_wheel_properties(tmp_path, offset, radius):
+    document = xacro.parse((PACKAGE / 'urdf/simple_robot.xacro').read_text())
+    properties = {node.getAttribute('name'): node
+                  for node in document.getElementsByTagName('xacro:property')}
+    for name, value in (('wheel_offset_y', offset), ('wheel_radius', radius)):
+        assert float(properties[name].getAttribute('value')) != value
+        properties[name].setAttribute('value', str(value))
+    changed = tmp_path / 'changed_robot.xacro'
+    changed.write_text(document.toxml())
+    robot = ET.fromstring(xacro.process_file(str(changed)).toxml())
+    drive = robot.find(".//plugin[@name='gz::sim::systems::DiffDrive']")
+    assert float(drive.findtext('wheel_separation')) == pytest.approx(2 * offset)
+    assert float(drive.findtext('wheel_radius')) == pytest.approx(radius)
+    for side, sign in (('left', 1), ('right', -1)):
+        joint = robot.find(f"joint[@name='{drive.findtext(side + '_joint')}']")
+        y = float(joint.find('origin').get('xyz').split()[1])
+        assert y == pytest.approx(sign * offset)
+        link = robot.find(f"link[@name='{joint.find('child').get('link')}']")
+        for element in ('visual', 'collision'):
+            cylinder = link.find(f'{element}/geometry/cylinder')
+            assert float(cylinder.get('radius')) == pytest.approx(radius)
+
+
 def test_sensor_bridge_topics(robot):
     strings = launch_strings()
     camera = robot.find(".//sensor[@type='camera']")

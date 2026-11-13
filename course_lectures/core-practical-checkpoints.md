@@ -260,7 +260,7 @@ ros2 topic echo /robot1/velocity std_msgs/msg/Float32 --once
 ros2 param set /robot1/velocity_publisher robot_speed 11.0
 ```
 
-**Check:** initial `1.0`, then `3.5`, with `11.0` rejected. This is a Float32 demonstration, not a motor driver or Twist controller. [Source](../src/integration_demo/integration_demo/velocity_publisher.py) does update its cached speed in the callback.
+**Check:** initial `1.0`, then `3.5`, with `11.0` rejected. This is a Float32 demonstration, not a motor driver or Twist controller. [Source](../src/integration_demo/integration_demo/velocity_publisher.py) validates before commit and reads the committed parameter for each publication, so a rejected change cannot alter its output.
 
 ### Lecture 20 — Verify installed resources
 
@@ -583,7 +583,7 @@ ros2 topic info /conveyor_mode --verbose
 
 **Check:** defaults `7`, `7`, `1.0`, `0.5`, and `9`; reliable box-state communication; reliable/transient-local mode endpoints with depth 1. [system_params.yaml](../src/conveyor_system/config/system_params.yaml) uses a wildcard node key, but each node only uses the parameters its source declares/reads.
 
-**Rate checkpoint:** YAML's `publish_rate: 1.0` sets the sensor timer to 1 Hz. Change it to `5.0`, restart the launch, and check `ros2 topic hz /box_state` for approximately 5 Hz. The rate must be finite and greater than zero and is read-only after startup. Other sensor/control values are cached at construction, and the monitor rereads its threshold on configure; they do not provide validated live tuning callbacks. Changing stored parameters is not proof that behavior changed. Use startup overrides/restarts for this exercise.
+**Rate checkpoint:** YAML's `publish_rate: 1.0` sets the sensor timer to 1 Hz. Change it to `5.0`, restart the launch, and check `ros2 topic hz /box_state` for approximately 5 Hz. The rate must be finite, positive and produce a nonzero timer period representable in ROS nanoseconds; it is read-only after startup. Other sensor/control values are cached at construction, and the monitor rereads its threshold on configure; they do not provide validated live tuning callbacks. Changing stored parameters is not proof that behavior changed. Use startup overrides/restarts for this exercise.
 
 For an isolated override check, stop the full launch. Recreate Lecture 34's controller, observer, and operator-service terminals, replacing its controller command with:
 
