@@ -1,6 +1,6 @@
 # Section 13: Applied Robotics — MoveIt 2 and Robot Manipulation
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../applied-practical-checkpoints.md)
 
 ## Lecture 74: MoveIt 2 Introduction
 

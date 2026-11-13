@@ -1,6 +1,6 @@
 # Section 11: Applied Robotics — Nav2 Navigation Stack, Planning and Behavior Trees
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../applied-practical-checkpoints.md)
 
 ## Lecture 62: Advanced Debugging for AMCL, TF, Lifecycle and Nav2
 

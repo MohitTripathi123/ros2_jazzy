@@ -1,6 +1,6 @@
 # Section 5: ROS 2 Execution Model & Runtime Engineering
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../core-practical-checkpoints.md)
 
 ## Lecture 23: Executors & Callback Flow: Single-Threaded Executor
 

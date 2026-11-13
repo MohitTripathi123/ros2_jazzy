@@ -1,6 +1,8 @@
 # Section 14: Applied Robotics — Perception with OpenCV, YOLO and DeepSORT
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../applied-practical-checkpoints.md)
+
+**Before running these examples:** complete the camera and ROS-GZ bridge setup demonstrated in Lecture 82. The current sensor, bridge and subscribers use `/camera/image_raw`; verify live images before starting a model. Run one perception example at a time.
 
 ## Lecture 78: OpenCV with ROS2: Perception Begins
 

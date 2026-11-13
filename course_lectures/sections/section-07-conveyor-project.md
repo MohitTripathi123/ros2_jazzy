@@ -1,6 +1,6 @@
 # Section 7: Final Project — Autonomous Conveyor Monitoring Micro-System
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../core-practical-checkpoints.md)
 
 ## Lecture 31: Final Project Architecture Planning
 
@@ -32,7 +32,7 @@ Launch the complete multi-node conveyor application from one file. Load shared c
 
 ## Lecture 38: YAML Configuration, Parameters & QoS Integration
 
-Centralize conveyor thresholds, speeds, and timing in YAML and combine them with deliberate QoS choices. Review how runtime configuration influences each node without modifying source code.
+Centralize the supported conveyor thresholds and speeds in YAML and combine them with deliberate QoS choices. The current sensor timer remains fixed at one second; the `publish_rate` YAML entry is not implemented. Review how runtime configuration influences each node without modifying source code.
 
 ## Lecture 39: Final Debugging, Refactoring & Strong ROS 2 Engineer Wrap-Up
 

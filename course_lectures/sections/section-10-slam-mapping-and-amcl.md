@@ -1,6 +1,6 @@
 # Section 10: Applied Robotics — SLAM, Mapping, Odometry and TF Reality Check
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../applied-practical-checkpoints.md)
 
 ## Lecture 55: SLAM Fundamentals
 

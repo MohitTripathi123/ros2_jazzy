@@ -1,6 +1,6 @@
 # Section 2: ROS 2 Core Foundations
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../core-practical-checkpoints.md)
 
 ## Lecture 7: Writing Your First ROS 2 Node
 
