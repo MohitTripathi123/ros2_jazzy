@@ -583,7 +583,7 @@ ros2 topic info /conveyor_mode --verbose
 
 **Check:** defaults `7`, `7`, `1.0`, `0.5`, and `9`; reliable box-state communication; reliable/transient-local mode endpoints with depth 1. [system_params.yaml](../src/conveyor_system/config/system_params.yaml) uses a wildcard node key, but each node only uses the parameters its source declares/reads.
 
-**Known limitation:** YAML's `publish_rate: 1.0` is currently unused; the sensor timer is hardcoded to 1.0 seconds. Do not teach changing `publish_rate` as a working rate control. Sensor/control values are cached at construction, and the monitor rereads its threshold on configure; these nodes do not provide validated live tuning callbacks. Changing stored parameters is not proof that behavior changed. Use startup overrides/restarts for this exercise.
+**Rate checkpoint:** YAML's `publish_rate: 1.0` sets the sensor timer to 1 Hz. Change it to `5.0`, restart the launch, and check `ros2 topic hz /box_state` for approximately 5 Hz. The rate must be finite and greater than zero and is read-only after startup. Other sensor/control values are cached at construction, and the monitor rereads its threshold on configure; they do not provide validated live tuning callbacks. Changing stored parameters is not proof that behavior changed. Use startup overrides/restarts for this exercise.
 
 For an isolated override check, stop the full launch. Recreate Lecture 34's controller, observer, and operator-service terminals, replacing its controller command with:
 

@@ -1,10 +1,9 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
-from launch.actions import GroupAction
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
 
 def generate_launch_description():
     robot_speed_arg = DeclareLaunchArgument(
@@ -13,21 +12,21 @@ def generate_launch_description():
         description='Initial speed of the robot'
     )
     robot_speed = LaunchConfiguration('robot_speed')
-    
+
     enable_callback_arg = DeclareLaunchArgument(
         'enable_callback',
         default_value='true',
         description='Enable parameter callback example'
     )
     enable_callback = LaunchConfiguration('enable_callback')
-    
+
     use_sim_time_arg = DeclareLaunchArgument(
         'use_sim_time',
         default_value='false',
         description='Use simulation time'
     )
     use_sim_time = LaunchConfiguration('use_sim_time')
-    
+
     return LaunchDescription([
         robot_speed_arg,
         enable_callback_arg,
@@ -50,4 +49,3 @@ def generate_launch_description():
             output='screen'
         ),
         ])
-    

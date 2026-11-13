@@ -256,10 +256,10 @@
       name="gz::sim::systems::DiffDrive">
       <left_joint>left_wheel_joint</left_joint>
       <right_joint>right_wheel_joint</right_joint>
-      <wheel_separation>0.4</wheel_separation>
-      <wheel_radius>0.1</wheel_radius>
+      <wheel_separation>${2 * wheel_offset_y}</wheel_separation>
+      <wheel_radius>${wheel_radius}</wheel_radius>
       <odom_topic>/odom</odom_topic>
-      <cmd_vel_topic>/cmd_vel</cmd_vel_topic>
+      <topic>/cmd_vel</topic>
       <tf_topic>/tf</tf_topic>
       <frame_id>odom</frame_id>
       <child_frame_id>base_link</child_frame_id>
@@ -310,6 +310,7 @@
       <visualize>true</visualize>
       <topic>/camera/image_raw</topic>
       <camera>
+        <camera_info_topic>/camera/camera_info</camera_info_topic>
         <horizontal_fov>1.396</horizontal_fov>
         <image>
           <width>640</width>

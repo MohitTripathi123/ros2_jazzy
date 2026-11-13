@@ -1,9 +1,10 @@
-import rclpy   
+import cv2
+from cv_bridge import CvBridge
+import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
-import cv2
 from ultralytics import YOLO
+
 
 class YoloDetectionNode(Node):
     def __init__(self):
@@ -23,15 +24,16 @@ class YoloDetectionNode(Node):
         results = self.model(frame)  # Perform object detection
         annotated_frame = results[0].plot()  # Get the annotated frame with detections
         cv2.imshow('YOLO Detection', annotated_frame)  # Display the annotated frame
-        cv2.waitKey(1)  # Wait for a key press to update the display    
-        
+        cv2.waitKey(1)  # Wait for a key press to update the display
+
+
 def main(args=None):
     rclpy.init(args=args)
     yolo_detection_node = YoloDetectionNode()
     rclpy.spin(yolo_detection_node)
     yolo_detection_node.destroy_node()
-    rclpy.shutdown() 
-    
+    rclpy.shutdown()
+
+
 if __name__ == '__main__':
     main()
-        

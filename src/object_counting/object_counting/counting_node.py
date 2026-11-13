@@ -1,10 +1,11 @@
+import cv2
+from cv_bridge import CvBridge
+from deep_sort_realtime.deepsort_tracker import DeepSort
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
-import cv2
 from ultralytics import YOLO
-from deep_sort_realtime.deepsort_tracker import DeepSort
+
 
 class ObjectCountingNode(Node):
     def __init__(self):
@@ -21,16 +22,16 @@ class ObjectCountingNode(Node):
         self.tracker = DeepSort()  # Initialize Deep SORT tracker
         self.counted_ids = set()  # Set to store unique object IDs
         self.previous_center_y = {}
-        self.count = 0 # Counter for unique objects 
+        self.count = 0  # Counter for unique objects
         self.line_y = 250  # Y-coordinate of the counting line
 
     def image_callback(self, msg):
         # Convert ROS Image message to OpenCV format
         cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-        
+
         # Perform object detection using YOLOv8
         results = self.model(cv_image)[0]  # Get the first result (assuming batch size of 1)
-        
+
         # Extract bounding boxes and class labels
         detections = []
         for result in results:
@@ -39,10 +40,10 @@ class ObjectCountingNode(Node):
                 confidence = float(box.conf[0])
                 class_id = int(box.cls[0])
                 detections.append(([x1, y1, x2-x1, y2-y1], confidence, class_id))
-        
+
         # Update tracker with new detections
         tracks = self.tracker.update_tracks(detections, frame=cv_image)
-        
+
         # Count objects based on tracked IDs and class labels
         for track in tracks:
             if not track.is_confirmed():
@@ -70,11 +71,29 @@ class ObjectCountingNode(Node):
                 (0, 255, 0),
                 2,
             )
-            cv2.putText(cv_image, f'ID: {track_id}', (int(left), int(top)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)    
-        
-        cv2.line(cv_image, (0, self.line_y), (cv_image.shape[1], self.line_y), (255, 0, 0), 2)  # Draw counting line
-        cv2.putText(cv_image, f'Count: {self.count}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)  # Display count on image  
-        
+            cv2.putText(
+                cv_image,
+                f'ID: {track_id}',
+                (int(left), int(top)-10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 0),
+                2,
+            )
+
+        # Draw counting line
+        cv2.line(cv_image, (0, self.line_y), (cv_image.shape[1], self.line_y), (255, 0, 0), 2)
+        # Display count on image
+        cv2.putText(
+            cv_image,
+            f'Count: {self.count}',
+            (10, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 255, 0),
+            2,
+        )
+
         # Publish annotated image so rqt_image_view can display it
         annotated_msg = self.bridge.cv2_to_imgmsg(cv_image, encoding='bgr8')
         annotated_msg.header = msg.header
@@ -82,9 +101,10 @@ class ObjectCountingNode(Node):
 
         cv2.imshow('Object Counting', cv_image)
         cv2.waitKey(1)
-        
+
         # Print the current counts of each object class
         print(f'Total Count: {self.count}')
+
 
 def main(args=None):
     rclpy.init(args=args)
@@ -93,7 +113,6 @@ def main(args=None):
     counting_node.destroy_node()
     rclpy.shutdown()
 
+
 if __name__ == '__main__':
     main()
-        
-        

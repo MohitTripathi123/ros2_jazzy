@@ -21,7 +21,7 @@ command -v xacro
 command -v gz
 ```
 
-The package manifest does not yet list every launched dependency. If one is missing, install its Jazzy package before continuing; successful Python parsing does not install ROS packages.
+Install the declared dependencies with `rosdep` before continuing; successful Python parsing does not install ROS packages.
 
 ### Model checks before launching
 
@@ -87,7 +87,7 @@ Confirm the simulation is unpaused, the sensor plugin loaded and the topic/type 
 
 Before mapping, demonstrate forward motion and turning at low speed in the simulator, then stop. Observe both the robot and `/odom`; a published command alone is insufficient.
 
-**Current source caveat:** the model's DiffDrive configuration uses `<cmd_vel_topic>` while Gazebo Harmonic expects `<topic>`, and its `wheel_separation` is `0.4` despite wheel origins separated by `0.45` m. These pre-existing simulation issues are not repaired by this documentation update. Check the actual Gazebo command subscriber and geometry before declaring motion, odometry or downstream mapping verified. See the [verification record](verification.md). Do not compensate by increasing speed or assume Nav2 can repair a broken drive connection.
+The DiffDrive command topic is `/cmd_vel`; its wheel separation is derived from the wheel origins (0.45 m). Confirm the actual Gazebo subscriber and observe motion before declaring odometry or mapping verified. Do not compensate for a missing connection by increasing speed.
 
 ## Lectures 55–61: map first, then localize
 
@@ -148,7 +148,7 @@ test -f "$PWD/my_map.yaml" && test -f "$PWD/my_map.pgm"
 ros2 launch nav2_bringup localization_launch.py \
   map:="$PWD/my_map.yaml" \
   params_file:="$PWD/src/robot_description/config/nav2_params.yaml" \
-  use_sim_time:=true autostart:=true use_composition:=false
+  use_sim_time:=true autostart:=true use_composition:=False
 ```
 
 Use the YAML belonging to the same world you mapped. If the file check fails, stop and complete Lecture 57. `localization_launch.py` starts map-server/AMCL and their lifecycle manager; the repository's Gazebo launch alone does not.
@@ -177,10 +177,12 @@ Complete Lecture 61 first. To test navigation, stop its standalone localization 
 
 ```bash
 ros2 launch nav2_bringup bringup_launch.py \
-  slam:=false map:="$PWD/my_map.yaml" \
+  slam:=False map:="$PWD/my_map.yaml" \
   params_file:="$PWD/src/robot_description/config/nav2_params.yaml" \
-  use_sim_time:=true autostart:=true use_composition:=false
+  use_sim_time:=true autostart:=true use_composition:=False
 ```
+
+Use capitalized `False` for Nav2's `slam` and `use_composition` arguments because Jazzy launch expressions evaluate them as Python booleans. The course Gazebo launch's own `use_slam:=false` argument accepts lowercase.
 
 Bringup starts localization again as well as navigation. Set the initial pose again in RViz. Do not leave the previous standalone AMCL instance running. The provided Nav2 configuration still requires runtime validation against the installed Jazzy plugins; do not interpret these launch instructions as an end-to-end certification.
 

@@ -1,17 +1,21 @@
+import os
+import subprocess
+import tempfile
+
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, EmitEvent, ExecuteProcess, GroupAction, LogInfo, RegisterEventHandler, SetEnvironmentVariable, TimerAction
+from launch.actions import (
+    DeclareLaunchArgument, EmitEvent, ExecuteProcess, GroupAction, LogInfo,
+    RegisterEventHandler, SetEnvironmentVariable, TimerAction,
+)
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit, OnProcessStart
-from launch.substitutions import Command, LaunchConfiguration, PythonExpression
+from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import LifecycleNode, Node
 from launch_ros.event_handlers import OnStateTransition
 from launch_ros.events.lifecycle import ChangeState
 from launch_ros.parameter_descriptions import ParameterValue
 from lifecycle_msgs.msg import Transition
-from ament_index_python.packages import get_package_share_directory
-import os
-import subprocess
-import tempfile
 
 
 def generate_robot_sdf(xacro_file):
@@ -173,7 +177,10 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_slam',
             default_value='false',
-            description='Set to true to run slam_toolbox for mapping; false when using nav2 with a pre-built map'
+            description=(
+                'Set to true to run slam_toolbox for mapping; '
+                'false when using nav2 with a pre-built map'
+            )
         ),
         SetEnvironmentVariable('FASTDDS_BUILTIN_TRANSPORTS', 'UDPv4'),
         LogInfo(msg=['[robot_description] world: ', world_file]),
