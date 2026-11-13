@@ -5,6 +5,9 @@ Student code and written lecture companions for the ROS 2 Jazzy course. The repo
 ## Course material
 
 - [All 83 lecture descriptions](course_lectures/README.md)
+- [Core ROS 2 practical checkpoints: Lectures 3–39](course_lectures/core-practical-checkpoints.md)
+- [Applied robotics practical checkpoints: Lectures 40–83](course_lectures/applied-practical-checkpoints.md)
+- [Verification status and runtime test checklist](course_lectures/verification.md)
 - `src/` contains the ROS 2 packages used in the demonstrations and projects.
 
 ## How students should use this repository
@@ -15,7 +18,7 @@ Student code and written lecture companions for the ROS 2 Jazzy course. The repo
 4. If a row says **Concept / CLI**, there is intentionally no separate source file. Follow the video and run the commands yourself.
 5. If a row says **Generated exercise output**, create that file during the lecture. Generated maps, TF graphs, build folders, virtual environments, and downloaded model weights are intentionally not committed.
 
-The same file can appear in several lectures because the course develops one system incrementally. Always use the row matching the lecture you are currently watching.
+The same file can appear in several lectures because the course develops one system incrementally. The checked-in source is the final integrated example, not a separate snapshot of every intermediate video step. Use the row matching your lecture and its practical checkpoint for the current commands, expected result, and known differences. The recordings and published lecture order are unchanged.
 
 ## Packages
 
@@ -164,7 +167,7 @@ The same file can appear in several lectures because the course develops one sys
 | 70 — Odometry vs Localization: Fusion Concept | **Concept + configuration:** [`ekf.yaml`](src/robot_description/config/ekf.yaml) and the section notes. |
 | 71 — Robot Kinematics: Differential Drive | Wheel geometry and differential-drive configuration in [`simple_robot.xacro`](src/robot_description/urdf/simple_robot.xacro). |
 | 72 — Odometry Computation from Wheels | Differential-drive odometry configuration in [`simple_robot.xacro`](src/robot_description/urdf/simple_robot.xacro); the derivation is in the section notes. |
-| 73 — EKF: Extended Kalman Filter Introduction | [`ekf.yaml`](src/robot_description/config/ekf.yaml). |
+| 73 — EKF: Extended Kalman Filter Introduction | [`ekf.yaml`](src/robot_description/config/ekf.yaml): single `/odom` input. See the [separate-run and TF-ownership instructions](course_lectures/applied-practical-checkpoints.md#lectures-6973-odometry-and-the-single-source-ekf). |
 
 ### [Section 13: MoveIt 2 and Robot Manipulation](course_lectures/sections/section-13-moveit2.md)
 
@@ -179,7 +182,7 @@ The same file can appear in several lectures because the course develops one sys
 
 | Lecture | Open in this repository |
 | --- | --- |
-| 78 — OpenCV with ROS2: Perception Begins | [`image_node.py`](src/image_processing/image_processing/image_node.py). |
+| 78 — OpenCV with ROS2: Perception Begins | [`image_node.py`](src/image_processing/image_processing/image_node.py). First complete the [camera/bridge prerequisite](course_lectures/applied-practical-checkpoints.md#lectures-7882-camera-to-perception-workflow) demonstrated in Lecture 82. |
 | 79 — Object Detection: YOLO with ROS2 | [`yolo_node.py`](src/yolo_detection/yolo_detection/yolo_node.py). Model weights download at runtime and are not committed. |
 | 80 — Object Tracking: DeepSORT with ROS2 | [`tracking_node.py`](src/object_tracking/object_tracking/tracking_node.py). |
 | 81 — Object Counting & Event Detection | [`counting_node.py`](src/object_counting/object_counting/counting_node.py). |
@@ -189,7 +192,7 @@ The same file can appear in several lectures because the course develops one sys
 | Lecture | Open in this repository |
 | --- | --- |
 | 82 — Simulation + Full Integration: Gazebo Sim + ROS-GZ Bridge | [`simple_robot.xacro`](src/robot_description/urdf/simple_robot.xacro), [`simple_robot_world.sdf`](src/robot_description/worlds/simple_robot_world.sdf), and [`gazebo_robot.launch.py`](src/robot_description/launch/gazebo_robot.launch.py). |
-| 83 — Full System Architecture + Multi-Node Design | Review all packages in [`src`](src), especially the integrated [`robot_description`](src/robot_description) and [`conveyor_system`](src/conveyor_system) examples. |
+| 83 — Full System Architecture + Multi-Node Design | **Conceptual architecture review:** compare [`robot_description`](src/robot_description) and [`conveyor_system`](src/conveyor_system). There is no all-in-one Nav2/EKF/MoveIt/perception launch; see the [implemented boundaries](course_lectures/applied-practical-checkpoints.md#lecture-83-architecture-review-not-an-all-in-one-launch). |
 
 ## Build
 
@@ -202,13 +205,32 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-The perception examples additionally require their Python libraries:
+The perception examples additionally need OpenCV, `cv_bridge`, Ultralytics and DeepSORT as applicable. Follow the [isolated Python environment and camera preflight](course_lectures/applied-practical-checkpoints.md#python-environment-and-image-preflight) rather than installing into Ubuntu’s managed system Python. YOLO weights download on first use and are intentionally not stored in Git.
+
+## Test
+
+Documentation checks require only Python 3 and Bash:
 
 ```bash
-python3 -m pip install ultralytics deep-sort-realtime
+python3 scripts/check_course_docs.py
+python3 -m unittest discover -s scripts -p 'test_*.py' -v
 ```
 
-YOLO model weights are intentionally not stored in Git. Ultralytics downloads the named model on first use.
+After building and sourcing on Ubuntu 24.04 with ROS 2 Jazzy, stop exercise nodes before running tests:
+
+```bash
+colcon test --packages-select conveyor_system lifecycle_demo
+colcon test-result --verbose
+```
+
+Those focused tests cover conveyor/lifecycle regressions, not the full robotics course. To inspect every package's available tests:
+
+```bash
+colcon test
+colcon test-result --verbose
+```
+
+Report lint, dependency and functional failures separately. Then run the relevant [practical checkpoints](course_lectures/applied-practical-checkpoints.md#runtime-retest-checklist); a successful build or test collection does not prove Gazebo, Nav2 or perception works end-to-end. The [verification record](course_lectures/verification.md) distinguishes executed checks from pending runtime validation.
 
 ## Third-party course dependencies
 

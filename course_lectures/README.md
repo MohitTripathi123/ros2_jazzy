@@ -24,3 +24,11 @@ This directory is the written companion to the course. It follows the published 
 
 Read the relevant section page before watching its videos. Run the examples while watching, then use the lecture descriptions as a revision checklist. Quizzes remain in the Udemy course and are not reproduced here.
 
+
+## Practical companions
+
+- [Core ROS 2, Lectures 3–39](core-practical-checkpoints.md): prerequisites, commands, expected outcomes and failure cues.
+- [Applied robotics, Lectures 40–83](applied-practical-checkpoints.md): simulation/sensor checks, saved maps and AMCL, single-source EKF, perception preflight and architecture boundaries.
+- [Verification record](verification.md): completed checks, known limitations and runtime tests still required.
+
+These companions clarify the current code without adding lectures or changing the recordings. The committed files are final examples; when a video shows an intermediate state, use its checkpoint to distinguish the two.

@@ -1,6 +1,6 @@
 # Section 1: Course Orientation & ROS 2 Setup
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../core-practical-checkpoints.md)
 
 ## Lecture 1: Before You Start Phase 1: How to Learn Core ROS 2 Properly
 

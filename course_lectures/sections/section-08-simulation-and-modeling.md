@@ -1,6 +1,6 @@
 # Section 8: Applied Robotics — Simulation Workflow, URDF, Xacro and Robot Modeling
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../applied-practical-checkpoints.md)
 
 ## Lecture 40: Before You Start Phase 2: Moving from Core ROS 2 to Applied Robotics
 

@@ -1,6 +1,6 @@
 # Section 4: ROS 2 Integration & System Architecture
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../core-practical-checkpoints.md)
 
 ## Lecture 19: Mini Integration System: Velocity Controller
 

@@ -1,6 +1,6 @@
 # Section 3: Advanced ROS 2 Communication
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../core-practical-checkpoints.md)
 
 ## Lecture 12: Actions with a Separate Interface Package
 

@@ -1,6 +1,6 @@
 # Section 6: Professional ROS 2 Concepts
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../core-practical-checkpoints.md)
 
 ## Lecture 29: Lifecycle Nodes
 

@@ -1,6 +1,6 @@
 # Section 9: Applied Robotics — Sensor Integration, ROS-GZ Bridge and LaserScan
 
-[Back to course index](../README.md)
+[Back to course index](../README.md) · [Practical commands and checkpoints](../applied-practical-checkpoints.md)
 
 ## Lecture 53: LiDAR Integration in Gazebo, Scan Bridging, and RViz Visualization
 
