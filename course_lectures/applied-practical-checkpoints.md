@@ -235,14 +235,72 @@ The configured output target is 30 Hz, not a guaranteed measured rate. If no fil
 
 ## Lectures 74–77: external MoveIt 2 exercises
 
-These lessons use the installed MoveIt 2 tutorial/demo from the recordings. No custom MoveIt robot package, controller integration or planning pipeline is implemented by this repository. Use the [official MoveIt tutorials](https://moveit.picknik.ai/main/index.html), selecting the installation/version suitable for ROS 2 Jazzy rather than mixing distributions.
+Run this mock Kinova Gen3 and Robotiq 2F-85 demo on **Ubuntu 24.04 with ROS 2 Jazzy**. It is separate from the course's Gazebo mobile robot and does not require Nav2, a real arm, or a robot IP. This repository does not supply a custom MoveIt configuration.
 
-| Lecture | Checkpoint in the chosen demo |
+### Install the Jazzy demo dependencies
+
+Start from a ROS 2 Jazzy installation with the official apt repository configured. Use a fresh Bash terminal with no other ROS distribution or workspace sourced.
+
+```bash
+sudo apt update
+sudo apt install --no-remove git build-essential cmake python3-colcon-common-extensions \
+  ros-jazzy-moveit ros-jazzy-ros2-control ros-jazzy-ros2-controllers \
+  ros-jazzy-kinova-gen3-7dof-robotiq-2f-85-moveit-config
+```
+
+### Build the pinned gripper description
+
+Older Jazzy apt packages can pair Kortex with a Robotiq description that rejects the `mock_sensor_commands` Xacro argument. See the [upstream compatibility report](https://github.com/moveit/moveit2_tutorials/issues/1085). Build only the description from [Robotiq v1.3.0](https://github.com/robotiq/robotiq-ros/releases/tag/v1.3.0) in a separate workspace. This leaves the apt-installed files in `/opt/ros/jazzy` unchanged.
+
+Run the entire block in one terminal:
+
+```bash
+(
+  set -e
+  source /opt/ros/jazzy/setup.bash
+  test "$ROS_DISTRO" = jazzy
+  work=$(mktemp -d "$HOME/moveit-jazzy-demo.XXXXXX")
+  git clone --depth 1 --branch v1.3.0 --no-recurse-submodules \
+    https://github.com/robotiq/robotiq-ros.git "$work/robotiq"
+  test "$(git -C "$work/robotiq" rev-parse HEAD)" = \
+    77ba6fd7520d8c197368e744384c20910a1f6adb
+  cd "$work"
+  colcon --log-base "$work/colcon-log" build \
+    --base-paths "$work/robotiq/grippers/robotiq_description" \
+    --build-base "$work/build" --install-base "$work/install" \
+    --packages-select robotiq_description --executor sequential \
+    --cmake-args -DBUILD_TESTING=OFF
+  source "$work/install/local_setup.bash"
+  test "$(ros2 pkg prefix robotiq_description)" = "$work/install/robotiq_description"
+  printf 'Demo overlay: %s\n' "$work/install/local_setup.bash"
+  ros2 launch kinova_gen3_7dof_robotiq_2f_85_moveit_config robot.launch.py \
+    robot_ip:=yyy.yyy.yyy.yyy use_fake_hardware:=true launch_rviz:=true
+)
+```
+
+Keep the placeholder IP and `use_fake_hardware:=true`. This is mock hardware, not a Gazebo physics simulation. To relaunch in a new terminal, source Jazzy, then source the **printed** overlay path before repeating the launch command.
+
+### Verify planning, execution and shutdown
+
+In a second Jazzy terminal, check the ROS graph before moving the mock robot:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+ros2 control list_hardware_components -c /controller_manager
+ros2 control list_controllers -c /controller_manager
+ros2 topic echo /joint_states --once
+```
+
+Expect two active hardware components, both using `mock_components/GenericSystem`. The `joint_state_broadcaster`, `joint_trajectory_controller`, and `robotiq_gripper_controller` must also be active. The `twist_controller` can remain inactive. If the expected mock components or controllers are missing, stop before executing a plan.
+
+| Lecture | Checkpoint |
 | --- | --- |
-| 74 | Load the demo robot and planning scene in RViz without missing-model errors. |
-| 75 | Request a reachable end-effector pose, then compare with an unreachable request. |
-| 76 | Change joint values and explain the resulting end-effector pose. |
-| 77 | Distinguish planning from execution; inspect a plan before running it in the tutorial's simulated system. |
+| 74 | Load the robot and planning scene in RViz. Select the gripper group and check its **Open** and **Close** named states. |
+| 75 | Move the interactive goal marker to a reachable pose and inspect a plan. Compare it with a goal outside the workspace; do not execute a failed plan. |
+| 76 | Change a goal joint value and observe how the goal end-effector pose changes. Compare that goal with the current state from `/joint_states`. |
+| 77 | Click **Plan** and confirm only the preview changes. Click **Execute** separately and confirm the mock joint state moves to the target. |
+
+Stop the launch with Ctrl+C and check its log. A `move_group` segmentation fault or child exit code `-11` is a failed shutdown, even if arm and gripper motion worked. Clean shutdown with the unmodified launcher has not been established. Do not edit `/opt/ros` or remove gripper mimic joints to work around package incompatibilities.
 
 ## Lectures 78–82: camera-to-perception workflow
 
