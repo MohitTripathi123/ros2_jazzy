@@ -74,6 +74,15 @@ def test_sensor_bridge_topics(robot):
     strings = launch_strings()
     camera = robot.find(".//sensor[@type='camera']")
     assert camera.findtext('topic') + '@sensor_msgs/msg/Image[gz.msgs.Image' in strings
+    frame = camera.findtext('gz_frame_id')
+    assert frame == 'camera_optical_frame'
+    optical_joint = robot.find(f"joint/child[@link='{frame}']/..")
+    assert optical_joint.get('type') == 'fixed'
+    assert optical_joint.find('parent').get('link') == 'camera_link'
+    origin = optical_joint.find('origin')
+    assert [float(x) for x in origin.get('xyz').split()] == [0.0, 0.0, 0.0]
+    assert [float(x) for x in origin.get('rpy').split()] == pytest.approx(
+        [-math.pi / 2, 0.0, -math.pi / 2], abs=1e-5)
     info = camera.findtext('camera/camera_info_topic')
     assert info + '@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo' in strings
     lidar = robot.find(".//sensor[@type='gpu_lidar']")
@@ -143,7 +152,9 @@ def test_sdf_preserves_drive_and_sensor_contract(robot, tmp_path):
     drive = sdf.find(".//plugin[@name='gz::sim::systems::DiffDrive']")
     assert drive.findtext('topic') == '/cmd_vel'
     assert float(drive.findtext('wheel_separation')) == pytest.approx(0.45)
-    assert sdf.findtext('.//camera/camera_info_topic') == '/camera/camera_info'
+    camera = sdf.find(".//sensor[@type='camera']")
+    assert camera.findtext('gz_frame_id') == 'camera_optical_frame'
+    assert camera.findtext('camera/camera_info_topic') == '/camera/camera_info'
 
 
 def test_documented_nav2_booleans():

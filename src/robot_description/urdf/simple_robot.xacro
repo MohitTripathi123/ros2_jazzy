@@ -309,6 +309,7 @@
       <update_rate>30</update_rate>
       <visualize>true</visualize>
       <topic>/camera/image_raw</topic>
+      <gz_frame_id>camera_optical_frame</gz_frame_id>
       <camera>
         <camera_info_topic>/camera/camera_info</camera_info_topic>
         <horizontal_fov>1.396</horizontal_fov>
